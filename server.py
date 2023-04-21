@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 import json
-from database import getAll, getID
+from database import getAll, getID, insert
 from device import physicalread, physicalWrite
 from flask_socketio import SocketIO,emit
 from flask_cors import CORS
@@ -36,13 +36,21 @@ def turnon(led_id):
     resp = jsonify(success=True)
     return resp
 
-
+@socketio.on("connect")
+def connected():
+    # result = getAll()
+    # print(result[len(result)-1][2])
+    bed = getID(0)[2]
+    living = getID(1)[2]
+    print("client has connected")
+    emit("connect",{"bed": bed,"living": living})
 
 
 @socketio.on('operate')
-def on(command, led_id):
-    physicalWrite(led_id+": "+command)
-    emit("data",{'data':command, 'led': led_id,'id':request.sid},broadcast=True)
+def on(command):
+    insert(command["data"],command["led"])
+    physicalWrite(str(command["led"])+": "+command["data"])
+    emit("data", "Change success", broadcast=True)
 
 
 # if __name__ == 'server':
