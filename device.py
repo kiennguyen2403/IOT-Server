@@ -1,6 +1,6 @@
 import serial
 import time
-port = '/dev/cu.usbmodem14101'
+port = 'COM5'
 ser = serial.Serial(port, 9600)
 
 def physicalread():
