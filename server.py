@@ -3,7 +3,7 @@ from flask import request
 from flask import jsonify
 import json
 from database import getAll, getID, insert
-from device import physicalread, physicalWrite
+from device import physicalRead, physicalWrite
 from flask_socketio import SocketIO,emit
 from flask_cors import CORS
 
@@ -11,6 +11,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 CORS(app,resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(app,cors_allowed_origins="*")
+
 
 @app.route('/')
 def hello():
@@ -52,6 +53,7 @@ def on(command):
     physicalWrite(str(command["led"])+": "+command["data"])
     emit("data", "Change success", broadcast=True)
 
+print("Server is running on port 5000")
 
 # if __name__ == 'server':
 socketio.run(app, debug=True,port=5000)

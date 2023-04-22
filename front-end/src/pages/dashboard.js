@@ -8,23 +8,27 @@ import CustomBar from "../components/bar";
 import { Data } from "../mockdata/data";
 import Grid from '@mui/material/Grid';
 import axios from 'axios'
+import { PieDataProcessing, BarDataProcessing } from "../middleware/dataprocessing";
 
 
 
 export default function DashboardPage() {
     const [donutChart, setDonutChart] = useState(null);
     const [barChart, setBarChart] = useState(null);
-
-    // useEffect(async ()=> {
-    //     getData()
-    // }, [donutChart, barChart]);
     Chart.register(CategoryScale);
 
 
     const getData = async () =>{
-        const response = await axios.get('http://localhost:3001/leds');
+        const response = await axios.get('http://localhost:5000/leds');
+        setDonutChart(PieDataProcessing(response.data));
+        setBarChart(response.data);
     }
     
+    useEffect(() => {
+        getData()
+    }, []);
+
+
     return(
         <div >
             <ResponsiveAppBar />
@@ -34,10 +38,10 @@ export default function DashboardPage() {
             </Typography>
             <Grid container spacing={2} >
                 <Grid item xs={4}>
-                    <Donut chartData={Data}/>
+                    <Donut chartData={donutChart}/>
                 </Grid>
                 <Grid item xs={4}>
-                    <CustomBar chartData={Data}/>
+                    <CustomBar chartData={barChart}/>
                 </Grid>
             </Grid>
             </div>

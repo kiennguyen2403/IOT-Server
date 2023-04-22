@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,9 +36,9 @@ export const options = {
   },
 };
 
-const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const labels = ['Sunday','Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export const data = {
+const defaultdata = {
   labels,
   datasets: [
     {
@@ -54,6 +54,9 @@ export const data = {
   ],
 };
 export default function CustomBar ({ chartData }) {
+
+  const [data, setData] = useState(defaultdata);
+  
   return (
     <Card >
       <CardContent>
