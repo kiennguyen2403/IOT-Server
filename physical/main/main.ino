@@ -10,20 +10,25 @@
 
 
 #define soundPin 13
+#define soundA0Pin A0
 
 #define tempPin 11
-#define tempA0Pin A0
+
 SimpleDHT11 dht11(tempPin);
 
 #define livingroom 4
 #define bedroom 2
 #define fan 3
+#define buzzer 1
 
 
 // global value 
 unsigned long currentTime;
 int sound = 1;
-int temp = 0;
+
+byte temperature = 0;
+
+
 bool livingroomState = LOW;
 bool bedroomState = LOW;
 bool isLivingRoomHavePeople = false;
@@ -99,25 +104,25 @@ void devicecontroller()
     isStageChange = true;
   }
 
-  if (command == "livingroom1")
+  if (command == "2on")
   {
     livingroomState = HIGH;
     digitalWrite(livingroom, livingroomState);
     isStageChange = true;
   }
-  else if (command == "livingroom0")
+  else if (command == "2off")
   {
     livingroomState = LOW;
     digitalWrite(livingroom, livingroomState);
     isStageChange = true;
   }
-  else if (command == "bedroom1")
+  else if (command == "1on")
   {
     bedroomState = HIGH;
     digitalWrite(bedroom, bedroomState);
     isStageChange = true;
   }
-  else if (command == "bedroom0")
+  else if (command == "1off")
   {
     bedroomState = LOW;
     digitalWrite(bedroom, bedroomState);
@@ -135,6 +140,17 @@ void devicecontroller()
   } else if (command == "warning0")
   {
     digitalWrite(1, LOW);
+  }
+
+  command = ""; // reset command
+
+  if ((int)temperature > 30)
+  {
+    digitalWrite(fan, HIGH);
+  }
+  else
+  {
+    digitalWrite(fan, LOW);
   }
 }
 
@@ -164,18 +180,17 @@ void sendData()
 }
 void readTemp()
 {
-  byte temperature = 0;
+
   byte humidity = 0;
   int err = SimpleDHTErrSuccess;
   if ((err = dht11.read(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess)
   {
-    Serial.print("Read DHT11 failed, err="); Serial.println(err);delay(1000);
+    Serial.print("Read DHT11 failed, err="); Serial.println(err);
     return;
   }
   Serial.print("Sample OK: ");
   Serial.print((int)temperature); Serial.print(" *C, ");
   Serial.print((int)humidity); Serial.println(" H");
-  delay(1000);
 }
 
 
@@ -183,6 +198,7 @@ void readCommand(){
   if (Serial.available())
   {
     command = Serial.readString();
+    Serial.println(command);
   }
 }
 
@@ -194,6 +210,8 @@ void readData()
   isbedroomHavePeople = detecthuman("bedroom");
   // temp = digitalRead(tempPin);
   sound = digitalRead(soundPin);
+  // readTemp();
+  readCommand();
 }
 
 
@@ -202,12 +220,9 @@ void setup()
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(tempPin, INPUT);
+
   pinMode(soundPin, INPUT);
-
-
-  pinMode(livingroom, OUTPUT);
-  pinMode(bedroom, OUTPUT);
-
+  pinMode(soundA0Pin, INPUT);
 
   pinMode(ultraSonicLivingTriggerPin, OUTPUT);
   pinMode(ultraSonicLivingEchoPin, INPUT);
@@ -215,6 +230,13 @@ void setup()
   pinMode(ultraSonicBedroomTriggerPin, OUTPUT);
   pinMode(ultraSonicBedroomEchoPin, INPUT);
 
+  pinMode(livingroom, OUTPUT);
+  pinMode(bedroom, OUTPUT);
+  pinMode(fan, OUTPUT);
+
+  digitalWrite(buzzer, LOW);
+
+  Serial.setTimeout(250);
 }
 
 

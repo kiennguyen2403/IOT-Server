@@ -48,5 +48,5 @@ def insert(command, device):
             (command, device)
             )
     connection.commit()
-    print("Insert success")
+    print(command, device)
     # connection.close()

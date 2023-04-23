@@ -25,7 +25,7 @@ ChartJS.register(
     Legend
 );
 
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October','November','December'];
 const defaultdata = {
     labels,
     datasets: [
@@ -51,7 +51,7 @@ export const options = {
         },
         title: {
             display: true,
-            text: 'Energy usage of each room',
+            text: 'Energy usage of each month',
         },
     },
 };
@@ -66,13 +66,13 @@ export default function LineChart({ chartData }) {
                 datasets: [
                     {
                         label: 'Living room',
-                        data: labels.map(() => 100),
+                        data: chartData[0].map((item) => item),
                         borderColor: 'rgb(255, 99, 132)',
                         backgroundColor: 'rgba(255, 99, 132, 0.5)',
                     },
                     {
                         label: 'Bedroom',
-                        data: labels.map(() => 100),
+                        data: chartData[1].map((item) => item),
                         borderColor: 'rgb(53, 162, 235)',
                         backgroundColor: 'rgba(53, 162, 235, 0.5)',
                     },

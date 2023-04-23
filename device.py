@@ -1,6 +1,8 @@
 import serial
 import time
 port = 'COM5'
+
+
 ser = serial.Serial(port, 9600)
 
 def physicalRead():
