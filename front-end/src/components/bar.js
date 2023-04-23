@@ -56,6 +56,27 @@ const defaultdata = {
 export default function CustomBar ({ chartData }) {
 
   const [data, setData] = useState(defaultdata);
+
+  useEffect(() => {
+    if (chartData) {
+      const data = {
+        labels,
+        datasets: [
+          {
+            label: 'Living room',
+            data: chartData[0].map((item) => item),
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          },
+          {
+            label: 'Bedroom',
+            data: chartData[1].map((item) => item),
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          },
+        ],
+      };
+      setData(data);
+    }
+  }, [chartData]);
   
   return (
     <Card >

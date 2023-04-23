@@ -15,7 +15,7 @@ const socket = io("localhost:5000/", {
     });
 
 
-const leds = ["Living room","Bedroom"]
+const leds = ["Living room","Bedroom", "Fan"]
 export default function ControllerPage() {
 
     const [bedroom, setBedroom] = useState(false);

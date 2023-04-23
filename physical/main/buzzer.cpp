@@ -20,7 +20,7 @@
 #define rest    -1
 
 
-int piezo = 8; // Connect your piezo buzzer to this pin or change it to match your circuit!
+int piezo = 1; // Connect your piezo buzzer to this pin or change it to match your circuit!
 int led = LED_BUILTIN; 
 
 volatile int beatlength = 100; // determines tempo

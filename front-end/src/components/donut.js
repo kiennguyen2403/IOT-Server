@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from "react";
+import { React, useEffect, useState } from "react";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -11,7 +11,7 @@ const defaultdata = {
   datasets: [
     {
       label: '# of Energy Usage',
-      data: [19,5],
+      data: [19, 5],
       backgroundColor: [
         'rgba(255, 99, 132, 0.2)',
         'rgba(54, 162, 235, 0.2)',
@@ -43,33 +43,35 @@ export default function Donut({ chartData }) {
   const [data, setData] = useState(defaultdata);
 
   useEffect(() => {
-    const data = {
-      labels: ['Living room', 'Bedroom'],
-      datasets: [
-        {
-          label: '# of Energy Usage',
-          data: chartData,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
+    if (chartData) {
+      const data = {
+        labels: ['Living room', 'Bedroom'],
+        datasets: [
+          {
+            label: '# of Energy Usage',
+            data: chartData,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
 
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+            ],
+            borderWidth: 1,
+          },
+        ],
+      };
 
-    setData(data);
+      setData(data);
+    }
   }, [chartData]);
   return (
     <Card>
       <CardContent>
-        <Doughnut data={data} options={options}/>
-      </CardContent>    
+        <Doughnut data={data} options={options} />
+      </CardContent>
     </Card>
   );
 }

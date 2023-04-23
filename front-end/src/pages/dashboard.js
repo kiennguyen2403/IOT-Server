@@ -9,7 +9,7 @@ import { Data } from "../mockdata/data";
 import Grid from '@mui/material/Grid';
 import axios from 'axios'
 import { PieDataProcessing, BarDataProcessing } from "../middleware/dataprocessing";
-
+import LineChart from "../components/linechart";
 
 
 export default function DashboardPage() {
@@ -21,7 +21,7 @@ export default function DashboardPage() {
     const getData = async () =>{
         const response = await axios.get('http://localhost:5000/leds');
         setDonutChart(PieDataProcessing(response.data));
-        setBarChart(response.data);
+        setBarChart(BarDataProcessing(response.data));
     }
     
     useEffect(() => {
@@ -42,6 +42,9 @@ export default function DashboardPage() {
                 </Grid>
                 <Grid item xs={4}>
                     <CustomBar chartData={barChart}/>
+                </Grid>
+                <Grid item xs={4}>
+                    <LineChart chartData={barChart}/>
                 </Grid>
             </Grid>
             </div>

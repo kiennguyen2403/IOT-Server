@@ -17,6 +17,7 @@ SimpleDHT11 dht11(tempPin);
 
 #define livingroom 4
 #define bedroom 2
+#define fan 3
 
 
 // global value 
@@ -28,6 +29,8 @@ bool bedroomState = LOW;
 bool isLivingRoomHavePeople = false;
 bool isbedroomHavePeople = false;
 bool isStageChange = false;
+String command = "";
+
 
 bool detecthuman(String room){
   if (room == "livingroom")
@@ -69,7 +72,7 @@ bool detecthuman(String room){
 }
 
 
-void ledcontroller()
+void devicecontroller()
 {
   if (sound == 0 && isbedroomHavePeople)
   {
@@ -94,6 +97,44 @@ void ledcontroller()
     }
     digitalWrite(livingroom, livingroomState);
     isStageChange = true;
+  }
+
+  if (command == "livingroom1")
+  {
+    livingroomState = HIGH;
+    digitalWrite(livingroom, livingroomState);
+    isStageChange = true;
+  }
+  else if (command == "livingroom0")
+  {
+    livingroomState = LOW;
+    digitalWrite(livingroom, livingroomState);
+    isStageChange = true;
+  }
+  else if (command == "bedroom1")
+  {
+    bedroomState = HIGH;
+    digitalWrite(bedroom, bedroomState);
+    isStageChange = true;
+  }
+  else if (command == "bedroom0")
+  {
+    bedroomState = LOW;
+    digitalWrite(bedroom, bedroomState);
+    isStageChange = true;
+  }
+  else if (command == "warning1")
+  {
+    digitalWrite(1, HIGH);
+  } else if (command == "fan1")
+  {
+    digitalWrite(fan, HIGH);
+  } else if (command == "fan0")
+  {
+    digitalWrite(fan, LOW);
+  } else if (command == "warning0")
+  {
+    digitalWrite(1, LOW);
   }
 }
 
@@ -121,15 +162,38 @@ void sendData()
     isStageChange = false;
   }
 }
+void readTemp()
+{
+  byte temperature = 0;
+  byte humidity = 0;
+  int err = SimpleDHTErrSuccess;
+  if ((err = dht11.read(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess)
+  {
+    Serial.print("Read DHT11 failed, err="); Serial.println(err);delay(1000);
+    return;
+  }
+  Serial.print("Sample OK: ");
+  Serial.print((int)temperature); Serial.print(" *C, ");
+  Serial.print((int)humidity); Serial.println(" H");
+  delay(1000);
+}
+
+
+void readCommand(){
+  if (Serial.available())
+  {
+    command = Serial.readString();
+  }
+}
+
+
 
 void readData()
 {
-  
   isLivingRoomHavePeople = detecthuman("livingroom");
   isbedroomHavePeople = detecthuman("bedroom");
   // temp = digitalRead(tempPin);
   sound = digitalRead(soundPin);
-  Serial.println(sound);
 }
 
 
@@ -151,13 +215,12 @@ void setup()
   pinMode(ultraSonicBedroomTriggerPin, OUTPUT);
   pinMode(ultraSonicBedroomEchoPin, INPUT);
 
-
 }
 
 
 void loop()
 {
   readData();
-  ledcontroller();
+  devicecontroller();
   sendData();
 }
