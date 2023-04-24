@@ -22,7 +22,7 @@ export default function ControllerPage() {
     const [bedroom, setBedroom] = useState(false);
     const [livingRoom, setLivingRoom] = useState(false);
     const [fan, setFan] = useState(false);
-
+    const [warning, setWarning] = useState(false);
     useEffect(() => {
         socket.on("connect", (data) => {
             if (data) {
@@ -58,10 +58,7 @@ export default function ControllerPage() {
 
         socket.on("warning", (data) => {
             if (data) {
-                <Alert severity="warning">
-                    <AlertTitle>Warning</AlertTitle>
-                    Fire is detected.
-                </Alert>
+                setWarning(true);
             }
         });
 
@@ -77,39 +74,82 @@ export default function ControllerPage() {
                     Controller
                 </Typography>
                 <div>
-                    {leds.map((led) =>
-                        <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
-                            <CardContent>
-                                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                    {led}
-                                </Typography>
-                            </CardContent>
-                            <CardActions>
-                                <Switch checked={led == "Bedroom" ? bedroom : livingRoom} onClick={
-                                    () => {
-                                        if (led === "Bedroom") {
-                                            setBedroom(!bedroom);
+                    <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
+                        <CardContent>
+                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                Bedroom
+                            </Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Switch checked={bedroom} onClick={
+                                () => {
 
-                                            bedroom
-                                                ? socket.emit("operate", { 'data': "on", 'led': 1 })
-                                                : socket.emit("operate", { 'data': "off", 'led': 1 })
-                                        }
-                                        else {
-                                            setLivingRoom(!livingRoom);
-                                            // livingRoom 
-                                            // ? axios.post('http://localhost:3001/on/2', {}) 
-                                            // : axios.post('http://localhost:3001/off/2', {})
-                                            livingRoom
-                                                ? socket.emit("operate", { 'data': "on", 'led': 2 })
-                                                : socket.emit("operate", { 'data': "off", 'led': 2 })
-                                        }
-                                    }
-                                } />
-                            </CardActions>
-                        </Card>)
-                    }
+                                    setBedroom(!bedroom);
+                                    bedroom
+                                        ? socket.emit("operate", { 'data': "on", 'led': 1 })
+                                        : socket.emit("operate", { 'data': "off", 'led': 1 })
+                                }
+                            } />
+                        </CardActions>
+                    </Card>
+                    <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
+                        <CardContent>
+                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                Livingroom
+                            </Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Switch checked={livingRoom} onClick={
+                                () => {
+
+                                    setBedroom(!livingRoom);
+                                    livingRoom
+                                        ? socket.emit("operate", { 'data': "on", 'led': 0 })
+                                        : socket.emit("operate", { 'data': "off", 'led': 0 })
+                                }
+                            } />
+                        </CardActions>
+                    </Card>
+                    <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
+                        <CardContent>
+                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                Fan
+                            </Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Switch checked={fan} onClick={
+                                () => {
+
+                                    setBedroom(!fan);
+                                    fan
+                                        ? socket.emit("operate", { 'data': "on", 'led': 3 })
+                                        : socket.emit("operate", { 'data': "off", 'led': 3 })
+                                }
+                            } />
+                        </CardActions>
+                    </Card>
                 </div>
             </div>
+            <Collapse in={warning}>
+                <Alert
+                    severity="error"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => {
+                                setWarning(false);
+                            }}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                    sx={{ mb: 2 }}
+                >
+                    Smoke detected in the house. Be careful!
+                </Alert>
+            </Collapse>
         </div>
     );
 }
