@@ -37,7 +37,7 @@ def getAll():
 
 def getID(id):
     cur = connection.cursor()
-    data = cur.execute("SELECT * FROM posts WHERE device=?",(id,)).fetchone()
+    data = cur.execute("SELECT * FROM posts WHERE device=? ORDER BY created DESC LIMIT 1",(id,)).fetchone()
     connection.commit()
     return data
     # connection.close()

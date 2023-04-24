@@ -12,6 +12,7 @@ import Collapse from '@mui/material/Collapse';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 
+
 const socket = io("localhost:5000/", {
     withCredentials: true,
     cors: {
@@ -19,14 +20,14 @@ const socket = io("localhost:5000/", {
     },
 });
 
-
-const leds = ["Living room", "Bedroom"]
 export default function ControllerPage() {
-
     const [bedroom, setBedroom] = useState(false);
     const [livingRoom, setLivingRoom] = useState(false);
     const [fan, setFan] = useState(false);
     const [warning, setWarning] = useState(false);
+
+  
+
     useEffect(() => {
         socket.on("connect", (data) => {
             if (data) {
@@ -44,14 +45,10 @@ export default function ControllerPage() {
                     setLivingRoom(false);
                 }
             }
-        }
+        });
 
-        )
-    }, []);
-
-
-    useEffect(() => {
         socket.on("operate", (data) => {
+            console.log(data);
             if (data.led === 1) {
                 setBedroom(data.data === "on");
             }
@@ -89,7 +86,7 @@ export default function ControllerPage() {
                                 () => {
 
                                     setBedroom(!bedroom);
-                                    bedroom
+                                    !bedroom
                                         ? socket.emit("operate", { 'data': "on", 'led': 1 })
                                         : socket.emit("operate", { 'data': "off", 'led': 1 })
                                 }
@@ -105,11 +102,10 @@ export default function ControllerPage() {
                         <CardActions>
                             <Switch checked={livingRoom} onClick={
                                 () => {
-
-                                    setBedroom(!livingRoom);
-                                    livingRoom
-                                        ? socket.emit("operate", { 'data': "on", 'led': 0 })
-                                        : socket.emit("operate", { 'data': "off", 'led': 0 })
+                                    setLivingRoom(!livingRoom);
+                                    !livingRoom
+                                        ? socket.emit("operate", { 'data': "on", 'led': 2 })
+                                        : socket.emit("operate", { 'data': "off", 'led': 2 })
                                 }
                             } />
                         </CardActions>
@@ -124,8 +120,8 @@ export default function ControllerPage() {
                             <Switch checked={fan} onClick={
                                 () => {
 
-                                    setBedroom(!fan);
-                                    fan
+                                    setFan(!fan);
+                                    !fan
                                         ? socket.emit("operate", { 'data': "on", 'led': 3 })
                                         : socket.emit("operate", { 'data': "off", 'led': 3 })
                                 }

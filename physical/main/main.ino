@@ -198,7 +198,6 @@ void readCommand(){
   if (Serial.available())
   {
     command = Serial.readString();
-    Serial.println(command);
   }
 }
 

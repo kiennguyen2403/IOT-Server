@@ -3,7 +3,7 @@ import time
 port = 'COM5'
 
 
-ser = serial.Serial(port, 9600)
+ser = serial.Serial(port, 9600, timeout=1)
 
 def physicalRead():
     s = ser.read(10000)

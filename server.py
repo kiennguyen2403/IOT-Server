@@ -19,15 +19,36 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 
 
 # Create a function that reads data from the serial port in a loop
-
+stageCheck = False
 lastResponse = ""
 
 def read_serial():
     global lastResponse
     while True:
         data = physicalRead()
-        if data is not None:
+        global stageCheck
+        if data is not None and lastResponse != data.decode('utf-8').rstrip():
             lastResponse = data.decode('utf-8').rstrip()
+            if "warning" in lastResponse:
+                print("warning")
+                stageCheck = True
+            elif "bedroom1" in lastResponse:
+                insert("off",0)
+                print("trigger bedroom")
+                stageCheck = True
+            elif "bedroom0" in lastResponse:
+                insert("on",0)
+                print("trigger bedroom")
+                stageCheck = True
+            elif "livingroom1" in lastResponse:
+                print("trigger livingroom")
+                insert("off",1)
+                stageCheck = True
+            elif "livingroom0" in lastResponse:
+                print("trigger livingroom")
+                insert("on",1)
+                stageCheck = True
+            
             
         
 
@@ -61,7 +82,7 @@ def connected():
         insert("off",1)
     bed = getID(0)[2]
     living = getID(1)[2]
-    print("client has connected")
+    print("Client has connected")
     emit("connect",{"bed": bed,"living": living})
 
 # @socketio.on("warning")
@@ -75,32 +96,25 @@ def on(command):
     insert(command["data"],command["led"])
     physicalWrite(str(command["led"])+command["data"])
     emit("data", "Change success", broadcast=True)
-    print(lastResponse)
-    if "warning" in lastResponse:
-        emit("warning",{"warning": "warning"},broadcast=True)
-        print("warning")
-    elif "bedroom1":
-        insert("off",0)
-        emit ("data",{"bed": "off"},broadcast=True)
-    elif "bedroom0":
-        insert("on",0)
-        emit ("data",{"bed": "on"},broadcast=True)
-    elif "livingroom1":
-        insert("off",1)
-        emit ("data",{"living": "off"},broadcast=True)
-    elif "livingroom0":
-        insert("on",1)
-        emit ("data",{"living": "on"},broadcast=True)
+    print("Change success")
+
+     
+    
 
 @socketio.on('disconnect')
 def disconnect():
     print("client has disconnected")
+    emit("disconnect", f"user {request.sid} disconnected", broadcast=True)
 
 
 
 print("Server is running on port 5000")
+def run_server():
+    socketio.run(app, debug=True,port=5000)
 
 # if __name__ == 'server':
 serial_thread = threading.Thread(target=read_serial)
 serial_thread.start()
-socketio.run(app, debug=True,port=5000)
+socketio.run(app, debug=True, port=5000)
+
+
