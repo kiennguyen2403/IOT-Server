@@ -7,6 +7,10 @@ import CardContent from '@mui/material/CardContent';
 import { io } from "socket.io-client";
 import Typography from '@mui/material/Typography';
 import { Alert, AlertTitle } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import Button from '@mui/material/Button';
+import CloseIcon from '@mui/icons-material/Close';
 
 const socket = io("localhost:5000/", {
     withCredentials: true,
