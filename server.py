@@ -7,13 +7,30 @@ from device import physicalRead, physicalWrite
 from flask_socketio import SocketIO,emit
 from flask_cors import CORS
 import threading
-import serial
-import time
+import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 CORS(app,resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(app,cors_allowed_origins="*")
+
+client = mqtt.Client()
+
+
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload))
+
+
+
+
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect("broker.hivemq.com", 1883, 60)
+client.loop_start()
+
 
 
 
@@ -26,9 +43,9 @@ def read_serial():
     global lastResponse
     while True:
         data = physicalRead()
-        if data is not None:
+        if data is not None and data != lastResponse:
             lastResponse = data.decode('utf-8').rstrip()
-            
+            socketio.emit("data",{"data": lastResponse},broadcast=True)
         
 
 
@@ -54,6 +71,7 @@ def turnon(led_id):
 
 @socketio.on("connect")
 def connected():
+    client.subscribe("iot/led")
     # result = getAll()
     if getID(0) is None:
         insert("off",0)
@@ -72,6 +90,7 @@ def connected():
 
 @socketio.on('operate')
 def on(command):
+    client.publish("iot/led",command["data"])
     insert(command["data"],command["led"])
     physicalWrite(str(command["led"])+command["data"])
     emit("data", "Change success", broadcast=True)
@@ -94,6 +113,7 @@ def on(command):
 
 @socketio.on('disconnect')
 def disconnect():
+    client.unsubscribe("iot/led")
     print("client has disconnected")
 
 
