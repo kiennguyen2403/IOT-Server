@@ -4,7 +4,7 @@ import Switch from '@mui/material/Switch';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import { io } from "socket.io-client";
+import { connect, io } from "socket.io-client";
 import Typography from '@mui/material/Typography';
 import { Alert, AlertTitle } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
@@ -13,23 +13,28 @@ import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 
 
-const socket = io("localhost:5000/", {
-    withCredentials: true,
-    cors: {
-        origin: "http://localhost:3000/controller",
-    },
-});
+
+
 
 export default function ControllerPage() {
     const [bedroom, setBedroom] = useState(false);
     const [livingRoom, setLivingRoom] = useState(false);
     const [fan, setFan] = useState(false);
     const [warning, setWarning] = useState(false);
+    const [socketInstance, setSocketInstance] = useState(null);
 
-  
 
     useEffect(() => {
+        const socket = io("localhost:5000/", {
+            withCredentials: true,
+            cors: {
+                origin: "http://localhost:3000/",
+            },
+        });
+
+
         socket.on("connect", (data) => {
+            console.log("connected")
             if (data) {
                 if (data["bed"] == "on") {
                     setBedroom(true);
@@ -47,25 +52,38 @@ export default function ControllerPage() {
             }
         });
 
-        socket.on("operate", (data) => {
-            console.log(data);
-            if (data.led === 1) {
-                setBedroom(data.data === "on");
-            }
-            else {
-                setLivingRoom(data.data === "on");
-            }
-        });
+        setSocketInstance(socket)
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
-        socket.on("warning", (data) => {
-            if (data) {
-                setWarning(true);
-            }
-        });
 
+    useEffect(() => {
+        if (socketInstance) {
+            socketInstance.on("message", (data) => {
+                console.log(data)
+                if (data) {
+                    if (data["bed"] == "on" || data == "bedroom1") {
+                        setBedroom(true);
+                    }
+                    else if (data["bed"] == "off" || data == "bedroom0") {
+                        setBedroom(false);
+                    }
+
+                    if (data["living"] == "on" || data == "livingroom1") {
+                        setLivingRoom(true);
+                    }
+                    else if (data["living"] == "off" || data == "livingroom0") {
+                        setLivingRoom(false);
+                    }
+
+                    
+                }
+            });
+        }
 
     }, [bedroom, livingRoom]);
-
 
     return (
         <div>
@@ -84,11 +102,12 @@ export default function ControllerPage() {
                         <CardActions>
                             <Switch checked={bedroom} onClick={
                                 () => {
-
-                                    setBedroom(!bedroom);
-                                    !bedroom
-                                        ? socket.emit("operate", { 'data': "on", 'led': 1 })
-                                        : socket.emit("operate", { 'data': "off", 'led': 1 })
+                                    if (socketInstance) {
+                                        setBedroom(!bedroom);
+                                        !bedroom
+                                            ? socketInstance.emit("message", { 'data': "on", 'led': 1 })
+                                            : socketInstance.emit("message", { 'data': "off", 'led': 1 })
+                                    }
                                 }
                             } />
                         </CardActions>
@@ -102,10 +121,12 @@ export default function ControllerPage() {
                         <CardActions>
                             <Switch checked={livingRoom} onClick={
                                 () => {
-                                    setLivingRoom(!livingRoom);
-                                    !livingRoom
-                                        ? socket.emit("operate", { 'data': "on", 'led': 2 })
-                                        : socket.emit("operate", { 'data': "off", 'led': 2 })
+                                    if (socketInstance) {
+                                        setLivingRoom(!livingRoom);
+                                        !livingRoom
+                                            ? socketInstance.emit("message", { 'data': "on", 'led': 2 })
+                                            : socketInstance.emit("message", { 'data': "off", 'led': 2 })
+                                    }
                                 }
                             } />
                         </CardActions>
@@ -120,10 +141,10 @@ export default function ControllerPage() {
                             <Switch checked={fan} onClick={
                                 () => {
 
-                                    setFan(!fan);
-                                    !fan
-                                        ? socket.emit("operate", { 'data': "on", 'led': 3 })
-                                        : socket.emit("operate", { 'data': "off", 'led': 3 })
+                                    // setFan(!fan);
+                                    // !fan
+                                    //     ? socket.emit("operate", { 'data': "on", 'led': 3 })
+                                    //     : socket.emit("operate", { 'data': "off", 'led': 3 })
                                 }
                             } />
                         </CardActions>

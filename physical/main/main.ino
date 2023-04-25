@@ -19,7 +19,7 @@ SimpleDHT11 dht11(tempPin);
 #define livingroom 4
 #define bedroom 2
 #define fan 3
-#define buzzer 1
+#define buzzer 8
 
 
 // global value 

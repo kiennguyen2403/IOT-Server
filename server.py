@@ -19,7 +19,7 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 
 
 # Create a function that reads data from the serial port in a loop
-stageCheck = False
+
 lastResponse = ""
 
 def read_serial():
@@ -31,24 +31,24 @@ def read_serial():
             lastResponse = data.decode('utf-8').rstrip()
             if "warning" in lastResponse:
                 print("warning")
-                stageCheck = True
+                socketio.emit("message", "warning")
             elif "bedroom1" in lastResponse:
-                insert("off",0)
-                print("trigger bedroom")
-                stageCheck = True
-            elif "bedroom0" in lastResponse:
                 insert("on",0)
                 print("trigger bedroom")
-                stageCheck = True
+                socketio.emit("message", "bedroom1")
+            elif "bedroom0" in lastResponse:
+                insert("off",0)
+                print("trigger bedroom")
+                socketio.emit("message","bedroom0")
             elif "livingroom1" in lastResponse:
                 print("trigger livingroom")
-                insert("off",1)
-                stageCheck = True
+                insert("on",1)
+                socketio.emit("message", "livingroom1")
             elif "livingroom0" in lastResponse:
                 print("trigger livingroom")
-                insert("on",1)
-                stageCheck = True
-            
+                insert("off",1)
+                socketio.emit("message", "livingroom0")
+
             
         
 
@@ -75,7 +75,6 @@ def turnon(led_id):
 
 @socketio.on("connect")
 def connected():
-    # result = getAll()
     if getID(0) is None:
         insert("off",0)
     if getID(1) is None:
@@ -91,11 +90,14 @@ def connected():
 
 
 
-@socketio.on('operate')
+@socketio.on('message')
 def on(command):
-    insert(command["data"],command["led"])
+    print(command)
+    insert(command["data"],command["led"]-1)
     physicalWrite(str(command["led"])+command["data"])
-    emit("data", "Change success", broadcast=True)
+    bed = getID(0)[2]
+    living = getID(1)[2]
+    emit("message", {"bed": bed, "living": living}, broadcast=True)
     print("Change success")
 
      
