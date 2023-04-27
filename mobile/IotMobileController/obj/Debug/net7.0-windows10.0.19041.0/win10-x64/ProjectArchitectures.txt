@@ -1,1 +1,0 @@
-F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\IotMobileController.csproj;x64
