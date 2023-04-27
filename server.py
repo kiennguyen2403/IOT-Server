@@ -84,24 +84,22 @@ def connected():
     print("Client has connected")
     emit("connect",{"bed": bed,"living": living})
 
-# @socketio.on("warning")
-# def warning():
-#     emit("warning",{"warning": "warning"},broadcast=True)
-
-
 
 @socketio.on('message')
 def on(command):
-    print(command)
-    insert(command["data"],command["led"]-1)
-    physicalWrite(str(command["led"])+command["data"])
-    bed = getID(0)[2]
-    living = getID(1)[2]
-    emit("message", {"bed": bed, "living": living}, broadcast=True)
-    print("Change success")
-
-     
-    
+    print("Command",command)
+    if command["data"] == "timer":
+        if command["time"] == "disable":
+            physicalWrite("disabletimer")
+        else:
+            physicalWrite("timer"+str(command["time"]))
+    if (command["data"] == "on" or command["data"]=="off"):
+        insert(command["data"],command["led"]-1)
+        physicalWrite(str(command["led"])+command["data"])
+        bed = getID(0)[2]
+        living = getID(1)[2]
+        emit("message", {"bed": bed, "living": living}, broadcast=True)
+        print("Change success")
 
 @socketio.on('disconnect')
 def disconnect():

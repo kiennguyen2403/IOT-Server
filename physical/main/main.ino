@@ -8,11 +8,13 @@
 #define ultraSonicBedroomTriggerPin 6
 #define ultraSonicBedroomEchoPin 5
 
+#define flamePin A4
+
 
 #define soundPin 13
 #define soundA0Pin A0
 
-#define tempPin 11
+#define tempPin 9
 
 SimpleDHT11 dht11(tempPin);
 
@@ -34,8 +36,23 @@ bool bedroomState = LOW;
 bool isLivingRoomHavePeople = false;
 bool isbedroomHavePeople = false;
 bool isStageChange = false;
-String command = "";
+bool isTimer = false;
+int timer = 1;
 
+String command = "";
+unsigned long startTime;
+
+void timermode(){
+  unsigned long currentTime = millis();                
+  unsigned long elapsedTime = currentTime - startTime; 
+  if (elapsedTime >= timer * 60 * 60 * 1000)
+  {                      
+    livingroomState = LOW;
+    bedroomState = LOW;
+    startTime = millis();
+    isStageChange = true;
+  }
+ }
 
 bool detecthuman(String room){
   if (room == "livingroom")
@@ -79,6 +96,7 @@ bool detecthuman(String room){
 
 void devicecontroller()
 {
+ 
   if (sound == 0 && isbedroomHavePeople)
   {
     if (bedroomState)
@@ -89,7 +107,7 @@ void devicecontroller()
     {
       bedroomState = HIGH;
     }
-    digitalWrite(bedroom, bedroomState);
+   
     isStageChange = true;
   } else if (sound == 0 && isLivingRoomHavePeople) {
     if (livingroomState)
@@ -100,58 +118,70 @@ void devicecontroller()
     {
       livingroomState = HIGH;
     }
-    digitalWrite(livingroom, livingroomState);
     isStageChange = true;
   }
 
   if (command == "2on")
   {
     livingroomState = HIGH;
-    digitalWrite(livingroom, livingroomState);
     isStageChange = true;
   }
   else if (command == "2off")
   {
     livingroomState = LOW;
-    digitalWrite(livingroom, livingroomState);
+ 
     isStageChange = true;
   }
   else if (command == "1on")
   {
     bedroomState = HIGH;
-    digitalWrite(bedroom, bedroomState);
     isStageChange = true;
   }
   else if (command == "1off")
   {
     bedroomState = LOW;
-    digitalWrite(bedroom, bedroomState);
     isStageChange = true;
   }
   else if (command == "warning1")
   {
-    digitalWrite(1, HIGH);
-  } else if (command == "fan1")
+    digitalWrite(buzzer, HIGH);
+  } 
+  // else if (command == "fanon")
+  // {
+  //   digitalWrite(fan, HIGH);
+  // } else if (command == "fanoff")
+  // {
+  //   digitalWrite(fan, LOW);
+  // } 
+  else if (command == "warning0")
   {
-    digitalWrite(fan, HIGH);
-  } else if (command == "fan0")
+    digitalWrite(buzzer, LOW);
+  } else if(command == "disabletimer"){
+    isTimer = false;
+  }
+  else if (command.indexOf("timer") != -1 && command != "disabletimer")
   {
-    digitalWrite(fan, LOW);
-  } else if (command == "warning0")
-  {
-    digitalWrite(1, LOW);
+    isTimer = true;
+    startTime = millis();
+    timer = command.substring(5).toInt();
   }
 
+  if (isTimer)
+  {
+    timermode();
+  }
+  digitalWrite(bedroom, bedroomState);
+  digitalWrite(livingroom, livingroomState);
   command = ""; // reset command
 
-  if ((int)temperature > 30)
-  {
-    digitalWrite(fan, HIGH);
-  }
-  else
-  {
-    digitalWrite(fan, LOW);
-  }
+  // if ((int)temperature > 30)
+  // {
+  //   digitalWrite(fan, HIGH);
+  // }
+  // else
+  // {
+  //   digitalWrite(fan, LOW);
+  // }
 }
 
 
@@ -198,6 +228,7 @@ void readCommand(){
   if (Serial.available())
   {
     command = Serial.readString();
+    Serial.println(command);
   }
 }
 
@@ -234,7 +265,7 @@ void setup()
   pinMode(fan, OUTPUT);
 
   digitalWrite(buzzer, LOW);
-
+  startTime = millis();
   Serial.setTimeout(250);
 }
 

@@ -11,6 +11,11 @@ import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
 
 
 
@@ -19,10 +24,18 @@ import CloseIcon from '@mui/icons-material/Close';
 export default function ControllerPage() {
     const [bedroom, setBedroom] = useState(false);
     const [livingRoom, setLivingRoom] = useState(false);
-    const [fan, setFan] = useState(false);
     const [warning, setWarning] = useState(false);
+    const [isTimer, setIsTimer] = useState(false);
     const [socketInstance, setSocketInstance] = useState(null);
 
+
+
+    const valuetext = (value) => {
+        if (socketInstance)
+        {
+            socketInstance.emit("message", { 'data': "timer", 'time': value });
+        }
+    }
 
     useEffect(() => {
         const socket = io("localhost:5000/", {
@@ -64,21 +77,21 @@ export default function ControllerPage() {
             socketInstance.on("message", (data) => {
                 console.log(data)
                 if (data) {
-                    if (data["bed"] == "on" || data == "bedroom1") {
+                    if (data["bed"] === "on" || data === "bedroom1") {
                         setBedroom(true);
                     }
-                    else if (data["bed"] == "off" || data == "bedroom0") {
+                    else if (data["bed"] === "off" || data === "bedroom0") {
                         setBedroom(false);
                     }
 
-                    if (data["living"] == "on" || data == "livingroom1") {
+                    if (data["living"] === "on" || data === "livingroom1") {
                         setLivingRoom(true);
                     }
-                    else if (data["living"] == "off" || data == "livingroom0") {
+                    else if (data["living"] === "off" || data === "livingroom0") {
                         setLivingRoom(false);
                     }
 
-                    
+
                 }
             });
         }
@@ -93,6 +106,33 @@ export default function ControllerPage() {
                     Controller
                 </Typography>
                 <div>
+                    <FormGroup style={{ margin: 10, marginLeft: 50 }}>
+                        <FormControlLabel
+                            control={<Checkbox
+                                checked={isTimer}
+                                onClick={() => { 
+                                    setIsTimer(!isTimer);
+                                    if (isTimer && socketInstance){
+                                        socketInstance.emit("message", { 'data': "timer", 'time': "disable" })
+                                    }
+                                }}
+                                style={{ margin:2}} />}
+                            label="Timer mode" />
+                        <Collapse in={isTimer}>
+                            <Box sx={{ width: 300, marginLeft: 2 }}>
+                                <Slider
+                                    aria-label="Temperature"
+                                    defaultValue={30}
+                                    onChangeCommitted={(event, value) => { valuetext(value) }}
+                                    valueLabelDisplay="auto"
+                                    step={1}
+                                    marks
+                                    min={1}
+                                    max={8}
+                                />
+                            </Box>
+                        </Collapse>
+                    </FormGroup>
                     <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
                         <CardContent>
                             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
@@ -131,7 +171,7 @@ export default function ControllerPage() {
                             } />
                         </CardActions>
                     </Card>
-                    <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
+                    {/* <Card sx={{ minWidth: 275, maxWidth: 500, margin: 5 }}>
                         <CardContent>
                             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                                 Fan
@@ -148,7 +188,7 @@ export default function ControllerPage() {
                                 }
                             } />
                         </CardActions>
-                    </Card>
+                    </Card> */}
                 </div>
             </div>
             <Collapse in={warning}>
