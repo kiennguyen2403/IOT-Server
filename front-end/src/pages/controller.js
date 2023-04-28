@@ -91,6 +91,14 @@ export default function ControllerPage() {
                         setLivingRoom(false);
                     }
 
+                    if (data === "fire1")
+                    {
+                        setWarning(true);
+                    } else if (data === "fire0")
+                    {
+                        setWarning(false);
+                    }
+
 
                 }
             });
@@ -191,7 +199,7 @@ export default function ControllerPage() {
                     </Card> */}
                 </div>
             </div>
-            <Collapse in={warning}>
+            <Collapse in={warning} style={{bottom:0, marginTop:"9%"}}>
                 <Alert
                     severity="error"
                     action={
