@@ -1,7 +1,3 @@
-#include <SimpleDHT.h>
-#include "buzzer.h"
-
-//define const
 #define ultraSonicLivingTriggerPin 11
 #define ultraSonicLivingEchoPin 10
 
@@ -15,8 +11,6 @@
 #define soundA0Pin A0
 
 #define tempPin 9
-
-SimpleDHT11 dht11(tempPin);
 
 #define livingroom 4
 #define bedroom 2
@@ -41,6 +35,17 @@ int timer = 1;
 
 String command = "";
 unsigned long startTime;
+
+
+void detectFire(){
+  int flame = analogRead(flamePin);
+  Serial.println(flame);
+  if (flame > 5000)
+  {
+    Serial.write("fire");
+  
+  }
+}
 
 void timermode(){
   unsigned long currentTime = millis();                
@@ -208,21 +213,6 @@ void sendData()
     isStageChange = false;
   }
 }
-void readTemp()
-{
-
-  byte humidity = 0;
-  int err = SimpleDHTErrSuccess;
-  if ((err = dht11.read(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess)
-  {
-    Serial.print("Read DHT11 failed, err="); Serial.println(err);
-    return;
-  }
-  Serial.print("Sample OK: ");
-  Serial.print((int)temperature); Serial.print(" *C, ");
-  Serial.print((int)humidity); Serial.println(" H");
-}
-
 
 void readCommand(){
   if (Serial.available())
@@ -236,6 +226,7 @@ void readCommand(){
 
 void readData()
 {
+  detectFire();
   isLivingRoomHavePeople = detecthuman("livingroom");
   isbedroomHavePeople = detecthuman("bedroom");
   // temp = digitalRead(tempPin);
@@ -259,6 +250,8 @@ void setup()
 
   pinMode(ultraSonicBedroomTriggerPin, OUTPUT);
   pinMode(ultraSonicBedroomEchoPin, INPUT);
+
+  pinMode(flamePin, INPUT);
 
   pinMode(livingroom, OUTPUT);
   pinMode(bedroom, OUTPUT);
