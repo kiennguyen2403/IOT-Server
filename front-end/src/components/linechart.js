@@ -84,7 +84,7 @@ export default function LineChart({ chartData }) {
     return (
         <Card>
             <CardContent>
-                <Line options={options} data={data} width={345} height={345} />
+                <Line options={options} data={data} width={"30%"} height={"30%"} />
             </CardContent>
         </Card>
     );

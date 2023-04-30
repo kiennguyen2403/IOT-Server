@@ -32,7 +32,7 @@ def read_serial():
             if "warning" in lastResponse:
                 print("warning")
                 socketio.emit("message", "warning")
-            elif "bedroom1" in lastResponse:
+            if "bedroom1" in lastResponse:
                 insert("on",0)
                 print("trigger bedroom")
                 socketio.emit("message", "bedroom1")
@@ -40,7 +40,7 @@ def read_serial():
                 insert("off",0)
                 print("trigger bedroom")
                 socketio.emit("message","bedroom0")
-            elif "livingroom1" in lastResponse:
+            if "livingroom1" in lastResponse:
                 print("trigger livingroom")
                 insert("on",1)
                 socketio.emit("message", "livingroom1")
@@ -48,6 +48,12 @@ def read_serial():
                 print("trigger livingroom")
                 insert("off",1)
                 socketio.emit("message", "livingroom0")
+            if "fire1" in lastResponse:
+                print("trigger fire")
+                socketio.emit("message", "fire1")
+            elif "fire0" in lastResponse:
+                print("trigger fire")
+                socketio.emit("message", "fire0")
 
             
         

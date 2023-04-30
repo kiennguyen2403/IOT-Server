@@ -27,10 +27,12 @@ byte temperature = 0;
 
 bool livingroomState = LOW;
 bool bedroomState = LOW;
+bool buzzerState = LOW;
 bool isLivingRoomHavePeople = false;
 bool isbedroomHavePeople = false;
 bool isStageChange = false;
 bool isTimer = false;
+bool isFire = false;
 int timer = 1;
 
 String command = "";
@@ -39,11 +41,15 @@ unsigned long startTime;
 
 void detectFire(){
   int flame = analogRead(flamePin);
-  Serial.println(flame);
-  if (flame > 5000)
+  if (flame > 1022)
   {
-    Serial.write("fire");
-  
+    isFire = true;
+    buzzerState = HIGH;
+    isStageChange = true;  
+  } else {
+    isFire = false;
+    buzzerState = LOW;
+    isStageChange = true;  
   }
 }
 
@@ -129,38 +135,26 @@ void devicecontroller()
   if (command == "2on")
   {
     livingroomState = HIGH;
-    isStageChange = true;
   }
   else if (command == "2off")
   {
     livingroomState = LOW;
- 
-    isStageChange = true;
   }
   else if (command == "1on")
   {
     bedroomState = HIGH;
-    isStageChange = true;
   }
   else if (command == "1off")
   {
     bedroomState = LOW;
-    isStageChange = true;
   }
   else if (command == "warning1")
   {
-    digitalWrite(buzzer, HIGH);
+    buzzerState = HIGH;
   } 
-  // else if (command == "fanon")
-  // {
-  //   digitalWrite(fan, HIGH);
-  // } else if (command == "fanoff")
-  // {
-  //   digitalWrite(fan, LOW);
-  // } 
   else if (command == "warning0")
   {
-    digitalWrite(buzzer, LOW);
+    buzzerState = LOW;
   } else if(command == "disabletimer"){
     isTimer = false;
   }
@@ -175,18 +169,10 @@ void devicecontroller()
   {
     timermode();
   }
+  digitalWrite(buzzer, buzzerState);
   digitalWrite(bedroom, bedroomState);
   digitalWrite(livingroom, livingroomState);
-  command = ""; // reset command
-
-  // if ((int)temperature > 30)
-  // {
-  //   digitalWrite(fan, HIGH);
-  // }
-  // else
-  // {
-  //   digitalWrite(fan, LOW);
-  // }
+  command = "";
 }
 
 
@@ -210,6 +196,14 @@ void sendData()
       Serial.write("bedroom0");
     }
 
+    if (isFire)
+    {
+      Serial.write("fire1");
+    }
+    else{
+      Serial.write("fire0");
+    }
+
     isStageChange = false;
   }
 }
@@ -218,7 +212,6 @@ void readCommand(){
   if (Serial.available())
   {
     command = Serial.readString();
-    Serial.println(command);
   }
 }
 
@@ -229,9 +222,7 @@ void readData()
   detectFire();
   isLivingRoomHavePeople = detecthuman("livingroom");
   isbedroomHavePeople = detecthuman("bedroom");
-  // temp = digitalRead(tempPin);
   sound = digitalRead(soundPin);
-  // readTemp();
   readCommand();
 }
 
@@ -255,9 +246,8 @@ void setup()
 
   pinMode(livingroom, OUTPUT);
   pinMode(bedroom, OUTPUT);
-  pinMode(fan, OUTPUT);
+  pinMode(buzzer, OUTPUT);
 
-  digitalWrite(buzzer, LOW);
   startTime = millis();
   Serial.setTimeout(250);
 }

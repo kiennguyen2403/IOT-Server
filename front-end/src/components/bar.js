@@ -81,7 +81,7 @@ export default function CustomBar ({ chartData }) {
   return (
     <Card >
       <CardContent>
-        <Bar options={options} data={data} width={345} height={345}/>
+        <Bar options={options} data={data} width={"30%"} height={"30%"}/>
       </CardContent>   
     </Card>
   );
