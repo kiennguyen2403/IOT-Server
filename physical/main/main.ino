@@ -38,7 +38,7 @@ unsigned long startTime;
 void detectFire()
 {
   int flame = analogRead(flamePin);
-  if (flame > 1022)
+  if (flame > 40)
   {
     if (isFire != true)
     {
@@ -62,7 +62,7 @@ void timermode()
 {
   unsigned long currentTime = millis();
   unsigned long elapsedTime = currentTime - startTime;
-  if (elapsedTime >= timer * 60 * 60 * 1000)
+  if (elapsedTime >= timer * 1000)
   {
     livingroomState = LOW;
     bedroomState = LOW;
