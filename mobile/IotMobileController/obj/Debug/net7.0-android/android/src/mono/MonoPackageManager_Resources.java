@@ -22,6 +22,7 @@ public class MonoPackageManager_Resources {
 		"Microsoft.Extensions.Primitives.dll",
 		"Microsoft.Maui.Graphics.dll",
 		"Newtonsoft.Json.dll",
+		"SocketIOClient.dll",
 		"Syncfusion.Maui.Charts.dll",
 		"Syncfusion.Licensing.dll",
 		"Syncfusion.Maui.Core.dll",

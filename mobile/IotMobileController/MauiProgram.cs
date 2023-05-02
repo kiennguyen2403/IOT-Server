@@ -24,6 +24,7 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<HttpService>();
 		builder.Services.AddSingleton<WebSocketService>();
+		builder.Services.AddSingleton<SocketIOService>();
 
 		builder.Services.AddSingleton<MainPageViewModel>();
 		builder.Services.AddSingleton<MainPage>();

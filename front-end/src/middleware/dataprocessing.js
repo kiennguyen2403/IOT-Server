@@ -27,13 +27,14 @@ export function PieDataProcessing(data) {
 }
 
 export function BarDataProcessing(data) {
+    console.log(data);
     const bedroomResult  =[0 ,0 ,0 , 0, 0, 0, 0]
     const livingroomResult = [0 ,0 ,0 , 0, 0, 0, 0]
     var currenttimebedroom = 0;
     var currenttimelivingroom = 0;
 
     data.forEach((element) => {
-        const day = new Date(element[0]).getDay();
+        const day = new Date(element[1]).getDay();
         if (element[3] == 2 && element[2] == "on") {
             currenttimelivingroom = Date.parse(element[1]) - currenttimelivingroom;
             livingroomResult[day] += currenttimelivingroom;
@@ -51,19 +52,20 @@ export function BarDataProcessing(data) {
         }
     });
 
-    const result = [bedroomResult, livingroomResult]
+    const result = [livingroomResult, bedroomResult]
     return result;
 }
 
 
 export function LineDataProcessing(data){
+
     const bedroomResult = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     const livingroomResult = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     var currenttimebedroom = 0;
     var currenttimelivingroom = 0;
 
     data.forEach((element) => {
-        const day = new Date(element[0]).getMonth();
+        const day = new Date(element[1]).getMonth();
         if (element[3] == 2 && element[2] == "on") {
             currenttimelivingroom = Date.parse(element[1]) - currenttimelivingroom;
             livingroomResult[day] += currenttimelivingroom;
@@ -81,7 +83,7 @@ export function LineDataProcessing(data){
         }
     });
 
-    const result = [bedroomResult, livingroomResult]
+    const result = [livingroomResult, bedroomResult]
     return result;
 }
 

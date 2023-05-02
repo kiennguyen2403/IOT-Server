@@ -16,7 +16,8 @@ namespace IotMobileController.ViewModels
 {
     public class ControllerViewModel: BaseViewModel
     {
-        private readonly WebSocketService _service;
+        private readonly SocketIOService _service;
+
 
 
         bool isTimerSet;
@@ -78,7 +79,7 @@ namespace IotMobileController.ViewModels
         public Command SetIsTimerAvailableCommand { get; }
         public Command SetTimerCommand { get; }
 
-        public ControllerViewModel(WebSocketService service) {
+        public ControllerViewModel(SocketIOService service) {
             isBedRoomOn= false;
             isLivingRoomOn= false;
             isTimerSet= false;
@@ -102,7 +103,26 @@ namespace IotMobileController.ViewModels
             try
             {
                 IsBusy = true;
-                var response = await _service.SocketConnect();
+                await _service.SocketConnect();
+                
+                if (_service.Commands.GetProperty("bed").ToString() == "off")
+                {
+                    IsBedRoomOn = false;
+                }
+                else
+                {
+                    IsBedRoomOn = true;
+                }
+
+                if (_service.Commands.GetProperty("living").ToString() == "off")
+                {
+                    IsLivingRoomOn = false;
+                }
+                else
+                {
+                    IsLivingRoomOn = true;
+                }
+
             } catch (Exception ex)
             {
                 Debug.WriteLine("Error:" + ex);
@@ -120,7 +140,13 @@ namespace IotMobileController.ViewModels
             
             try
             {
-                await _service.SocketSendMessage("bedroom1");
+                if (!IsBedRoomOn)
+                {
+                    await _service.SocketSendMessage(1,"off");
+                } else
+                {
+                    await _service.SocketSendMessage(1,"on");
+                }
             } catch (Exception ex) {
                 Debug.WriteLine("Error:" + ex);
                 await Shell.Current.DisplayAlert("Error", "Unables to send data.", "OK");
@@ -132,7 +158,13 @@ namespace IotMobileController.ViewModels
         {
             try
             {
-                await _service.SocketSendMessage("bedroom1");
+                if (!IsLivingRoomOn)
+                {
+                    await _service.SocketSendMessage(2, "off");
+                } else
+                {
+                    await _service.SocketSendMessage(2, "on");
+                }
             }
             catch (Exception ex)
             {
@@ -146,7 +178,15 @@ namespace IotMobileController.ViewModels
         {
             try
             {
-                await _service.SocketSendMessage("bedroom1");
+                if (!IsTimerSet)
+                {
+                    await _service.SocketSendMessage(0, "timer", true);
+                }
+                else
+                {
+                    await _service.SocketSendMessage(0, "timer", true);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -159,7 +199,7 @@ namespace IotMobileController.ViewModels
         {
             try
             {
-                await _service.SocketSendMessage("bedroom1");
+                await _service.SocketSendMessage(2,"");
             }
             catch (Exception ex)
             {

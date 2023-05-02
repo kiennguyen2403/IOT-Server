@@ -994,3 +994,4 @@ F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\obj\Debug\net7.0-android\an
 F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\obj\Debug\net7.0-android\android\assets\System.Runtime.Extensions.dll
 F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\obj\Debug\net7.0-android\android\assets\System.Runtime.Serialization.Formatters.dll
 F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\obj\Debug\net7.0-android\android\assets\System.Xml.dll
+F:\Du_an_ngoai\IOT_Server\mobile\IotMobileController\obj\Debug\net7.0-android\android\assets\SocketIOClient.dll

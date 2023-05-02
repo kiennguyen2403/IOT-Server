@@ -14,7 +14,7 @@
                     <CheckBox IsChecked="{Binding IsTimerSet}" CheckedChanged="CheckBox_CheckedChanged"/>
                     <Label Text="Timer" VerticalOptions="Center"/>
                 </HorizontalStackLayout>
-                <Slider IsEnabled="{Binding IsTimerSet}"  ValueChanged="Slider_ValueChanged"/>
+                <Slider IsEnabled="{Binding IsTimerSet}" Maximum="8" Minimum="0" ValueChanged="Slider_ValueChanged"/>
             </VerticalStackLayout>
         </Frame>
 

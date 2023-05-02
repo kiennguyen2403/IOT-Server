@@ -17,14 +17,14 @@ namespace IotMobileController.Services
  
     public class WebSocketService
     {
-        private readonly ClientWebSocket _WebSocketclient;
+        private readonly ClientWebSocket _webSocketClient;
         private readonly JsonSerializerOptions _serializerOptions;
         private readonly CancellationTokenSource cancellationTokenSource;
 
         public WebSocketService()
         {
             cancellationTokenSource = new();
-            _WebSocketclient = new ClientWebSocket();
+            _webSocketClient = new ClientWebSocket();
             _serializerOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -37,14 +37,15 @@ namespace IotMobileController.Services
             try
             {
                 var url = "ws://100.88.95.100:5000";
-                await _WebSocketclient.ConnectAsync(new Uri(url), CancellationToken.None);
-                await Task.Factory.StartNew(async () =>
+                await _webSocketClient.ConnectAsync(new Uri(url), CancellationToken.None);
+                while (_webSocketClient.State == WebSocketState.Open)
                 {
-                    while (true)
-                    {
-                        await SocketReadMessage();
-                    }
-                }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    var buffer = new ArraySegment<byte>(new byte[1024]);
+                    var result = await _webSocketClient.ReceiveAsync(buffer, cancellationTokenSource.Token);
+                    var message = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
+                    dynamic dynJson = JsonConvert.DeserializeObject<dynamic>(message);
+                    return dynJson;
+                }
             } catch (Exception ex)
             {
                 Debug.WriteLine("Error:"+ex);
@@ -52,14 +53,35 @@ namespace IotMobileController.Services
             return null;
         }
 
+        /*public async Task<dynamic> SocketConnect()
+        {
+            try
+            {
+                var url = "ws://100.88.95.100:5000";
+                await _webSocketClient.ConnectAsync(new Uri(url), CancellationToken.None);
+                await Task.Factory.StartNew(async () =>
+                {
+                    while (true)
+                    {
+                        await SocketReadMessage();
+                    }
+                }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error:" + ex);
+            }
+            return null;
+        }
+*/
         public async Task SocketSendMessage(string message)
         {
             try
                 {
-                if (_WebSocketclient.State == WebSocketState.Open)
+                if (_webSocketClient.State == WebSocketState.Open)
                     {
                     var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-                    await _WebSocketclient.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+                    await _webSocketClient.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
             catch (Exception ex)
@@ -68,13 +90,14 @@ namespace IotMobileController.Services
             }
         }
 
+
         public async Task<JObject> SocketReadMessage()
         {
             WebSocketReceiveResult result;
             var message = new ArraySegment<byte>(new byte[4096]);
             do
             {
-                result = await _WebSocketclient.ReceiveAsync(message, CancellationToken.None);
+                result = await _webSocketClient.ReceiveAsync(message, CancellationToken.None);
                 if (result.MessageType != WebSocketMessageType.Text)
                     break;
                 var messageBytes = message.Skip(message.Offset).Take(result.Count).ToArray();
@@ -89,11 +112,11 @@ namespace IotMobileController.Services
 
         public async Task SocketDisconnect()
         {
-            if (_WebSocketclient != null && _WebSocketclient.State == WebSocketState.Open)
+            if (_webSocketClient != null && _webSocketClient.State == WebSocketState.Open)
             {
                 try
                 {
-                    await _WebSocketclient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
+                    await _webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
                 } catch (Exception ex)
                 {
                     Debug.WriteLine(ex);

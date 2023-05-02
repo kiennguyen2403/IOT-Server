@@ -24,7 +24,7 @@ public partial class Controller : ContentPage
 
     private void Switch_Toggled_LivingRoom(object sender, ToggledEventArgs e)
     {
-        _viewModel.SetBedRoomDataCommand.Execute(e.Value);
+        _viewModel.SetLivingRoomDataCommand.Execute(e.Value);
     }
 
     private void Slider_ValueChanged(object sender, ValueChangedEventArgs e)
